@@ -16,10 +16,10 @@ $InstallFilesZip = "$ScriptRepo/InstallFiles.zip"
 $License         = "$ScriptRepo/LICENSE.txt"
 $3rdPartyLicense = "$ScriptRepo/LICENSE-3RD-PARTY.txt"
 
-$ScirptDir    = "$env:TEMP\NPSL"
-$BChunk       = "$ScirptDir\bchunk.exe"
-$BlankVMC     = "$ScirptDir\BlankVMC.bin"
-$Convert      = "$ScirptDir\convert.exe"
+$SetupDir    = "$env:TEMP\NPSL"
+$BChunk       = "$SetupDir\bchunk.exe"
+$BlankVMC     = "$SetupDir\BlankVMC.bin"
+$Convert      = "$SetupDir\convert.exe"
 
 $DefaultPS2IP       = "192.168.0.10"
 $DefaultShortcutDir = "$env:USERPROFILE\Desktop"
@@ -86,6 +86,17 @@ function Write-Form {
     $WriteFormResult = $WriteForm.ShowDialog()
     if ( $WriteFormResult -match "Cancel" ) {
         exit
+    }
+}
+function Search-BadChar {
+    param (
+        $FileArray
+    )
+    foreach ($FileCBC in $FileArray) {
+        if ( $FileCBC -match "\$|{|}" ) {
+            Write-Form "`r`nAn error has occured:`r`n`r`nPlease rename $FileCBC so that it does not contain these characters:`r`n $ or { or }" "Error"
+            exit
+        }
     }
 }
 function Uninstall-Form {
@@ -172,10 +183,10 @@ function Uninstall-Form {
     $UninstallPath = $LabelUninstallPath.Text
     $RemoveFirewallRule = $CheckBoxRemoveFirewall.Checked
     
-    if ( Test-Path -Path $ScirptDir ) {
+    if ( Test-Path -Path $SetupDir ) {
         
-        Remove-Item -Path $ScirptDir -Recurse -ErrorAction Ignore
-        $UninstallLog += "`r`nRemoving setup files from $ScirptDir`r`n"
+        Remove-Item -Path $SetupDir -Recurse -ErrorAction Ignore
+        $UninstallLog += "`r`nRemoving setup files from $SetupDir`r`n"
     }
     if ( Test-Path -Path "$UninstallPath\ps2client.exe" -PathType Leaf ) {
         
@@ -467,11 +478,10 @@ if ( $EnableVMC ){
 else {
     $VMCArgument = ""
 }
-if ( -not ( Test-Path -Path "$ScirptDir\bchunk.exe" -PathType Leaf ) ) {
+if ( -not ( Test-Path -Path "$SetupDir\bchunk.exe" -PathType Leaf ) ) {
     
-    Expand-Archive $SetupFilesZip -DestinationPath $ScirptDir
+    Expand-Archive $SetupFilesZip -DestinationPath $SetupDir
 }
-Set-Location $ScirptDir
 
 if ( -not ( Test-Path -Path $PS2Client -PathType Leaf ) ) {
     
@@ -503,6 +513,9 @@ else {
 $AllCUEs = Get-ChildItem -Path $ISODrive -Recurse -Include *.cue
 foreach ( $CUE in $AllCUEs ) {
     if ( $ConvertCue ) {
+        Search-BadChar $AllCUEs
+        $ScriptDir = Get-Location
+
         if ( -not (Test-Path -Path "$( $CUE.Directory )\$( $CUE.BaseName ).iso" -PathType Leaf) ) {
             
             Set-Location $CUE.Directory
@@ -510,7 +523,7 @@ foreach ( $CUE in $AllCUEs ) {
             & $BChunk * $CUE.Name $CUE.BaseName | Out-Null
             $InstallLog += "`r`n`r`nConverting $( $CUE.Name )+.bin to $( $CUE.BaseName ).iso"
 
-            Set-Location $ScirptDir
+            Set-Location $ScriptDir
             if ( $Error ) {
                 Write-Form "`r`nAn error has occured trying to convert $( $CUE.Name )+BIN to ISO:`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
                 exit
@@ -523,6 +536,7 @@ if ( -not $AllISOs ) {
     Write-Form "`r`nAn error has occured:`r`n`r`nThere are no ISOs found in ' $ISODrive '" "Error"
     exit
 }
+Search-BadChar $AllISOs
 foreach ( $ISO in $AllISOs ) {
     $DiskImage = Mount-DiskImage -ImagePath $ISO -StorageType ISO -NoDriveLetter -PassThru
     if ( $Error ) {
@@ -542,7 +556,7 @@ foreach ( $ISO in $AllISOs ) {
 
         if ( $Serial ) {
             $BaseName = $ISO.BaseName -replace "$Serial\."
-            $TrimmedISOPath = $ISO -replace "$ISODrive\\"
+            $TrimmedISOPath = $ISO -replace "$ISODrive\\" -replace "'" , "''"
             if ( $EnableVMC ) {
                 $VMCArgument = " -mc0=mass:VMC\${Serial}_0.bin"
                 $VMCFullName = "$ISODrive\VMC\${Serial}_0.bin"
