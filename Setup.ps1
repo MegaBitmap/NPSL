@@ -488,7 +488,6 @@ if ( -not ( Test-Path -Path "$SetupDir\bchunk.exe" -PathType Leaf ) ) {
 
     Remove-Item $TempSetupZip
 }
-Set-Location $ScirptDir
 
 if ( -not ( Test-Path -Path $PS2Client -PathType Leaf ) ) {
     
