@@ -445,7 +445,7 @@ $ShortcutPath    = $LabelShortcutPath.Text
 
 $InstallPath     = $LabelInstallPath.Text
 $InstallFolder   = "$InstallPath\NPSL"
-$PS2Client       = "$InstallFolder\ps2client.exe"
+$Neutrino        = "$InstallFolder\neutrino.elf"
 
 $AddFirewallRule = $CheckBoxAddFirewall.Checked
 $ConvertCue      = $CheckBoxConvertCue.Checked
@@ -483,9 +483,9 @@ if ( -not ( Test-Path -Path "$SetupDir\bchunk.exe" -PathType Leaf ) ) {
     Expand-Archive $SetupFilesZip -DestinationPath $SetupDir
 }
 
-if ( -not ( Test-Path -Path $PS2Client -PathType Leaf ) ) {
+if ( -not ( Test-Path $Neutrino -NewerThan "Feb 4, 2024" ) ) {
     
-    Expand-Archive $InstallFilesZip -DestinationPath $InstallFolder
+    Expand-Archive $InstallFilesZip -DestinationPath $InstallFolder -Force
     $InstallLog += "`r`n`r`nInstalling Files to $InstallFolder"
 }
 $CfgUDPBD    = "$InstallFolder\config\bsd-udpbd.toml"

@@ -445,7 +445,7 @@ $ShortcutPath    = $LabelShortcutPath.Text
 
 $InstallPath     = $LabelInstallPath.Text
 $InstallFolder   = "$InstallPath\NPSL"
-$PS2Client       = "$InstallFolder\ps2client.exe"
+$Neutrino        = "$InstallFolder\neutrino.elf"
 
 $AddFirewallRule = $CheckBoxAddFirewall.Checked
 $ConvertCue      = $CheckBoxConvertCue.Checked
@@ -489,13 +489,13 @@ if ( -not ( Test-Path -Path "$SetupDir\bchunk.exe" -PathType Leaf ) ) {
     Remove-Item $TempSetupZip
 }
 
-if ( -not ( Test-Path -Path $PS2Client -PathType Leaf ) ) {
+if ( -not ( Test-Path $Neutrino -NewerThan "Feb 4, 2024" ) ) {
     
     $TempInstallZip = "$env:TEMP\NPSLInstall.zip"
 
     Invoke-WebRequest -Uri $InstallFilesZip -OutFile $TempInstallZip
 
-    Expand-Archive $TempInstallZip -DestinationPath $InstallFolder
+    Expand-Archive $TempInstallZip -DestinationPath $InstallFolder -Force
     $InstallLog += "`r`n`r`nInstalling Files to $InstallFolder"
 
     Remove-Item $TempInstallZip
