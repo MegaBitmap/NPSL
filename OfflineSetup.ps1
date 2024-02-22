@@ -478,9 +478,9 @@ if ( $EnableVMC ){
 else {
     $VMCArgument = ""
 }
-if ( -not ( Test-Path -Path "$SetupDir\bchunk.exe" -PathType Leaf ) ) {
+if ( -not ( Test-Path "$SetupDir\BlankVMC.bin" -NewerThan "Feb 4, 2024" ) ) {
     
-    Expand-Archive $SetupFilesZip -DestinationPath $SetupDir
+    Expand-Archive $SetupFilesZip -DestinationPath $SetupDir -Force
 }
 
 if ( -not ( Test-Path $Neutrino -NewerThan "Feb 4, 2024" ) ) {

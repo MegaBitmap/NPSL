@@ -478,13 +478,13 @@ if ( $EnableVMC ){
 else {
     $VMCArgument = ""
 }
-if ( -not ( Test-Path -Path "$SetupDir\bchunk.exe" -PathType Leaf ) ) {
+if ( -not ( Test-Path "$SetupDir\BlankVMC.bin" -NewerThan "Feb 4, 2024" ) ) {
     
     $TempSetupZip = "$env:TEMP\NPSLSetup.zip"
 
     Invoke-WebRequest -Uri $SetupFilesZip -OutFile $TempSetupZip
 
-    Expand-Archive $TempSetupZip -DestinationPath $SetupDir
+    Expand-Archive $TempSetupZip -DestinationPath $SetupDir -Force
 
     Remove-Item $TempSetupZip
 }
