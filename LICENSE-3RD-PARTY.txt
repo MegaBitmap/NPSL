@@ -1,7 +1,7 @@
 The NPSL Setup application uses third party programs for added functionality:
 
     neutrino:
-        Version: neutrino-20240313-931dc533
+        Version: neutrino_v1.3.1
         https://github.com/rickgaiser/neutrino
 
         rickgaiser/neutrino is licensed under the

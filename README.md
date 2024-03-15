@@ -145,7 +145,7 @@ NPSL uses third party programs for added functionality:
 **Please read LICENSE-3RD-PARTY.txt for licensing information.**
 
 - neutrino:  
-Version: neutrino-20240313-931dc533  
+Version: neutrino_v1.3.1  
 <https://github.com/rickgaiser/neutrino>  
 
 - udpbd-server:  
