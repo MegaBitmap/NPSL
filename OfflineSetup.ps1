@@ -494,7 +494,7 @@ $CfgUDPBD    = "$InstallFolder\config\bsd-udpbd.toml"
 Find-Error
 
 if ( $AddFirewallRule ) {
-    Start-Process powershell.exe -WindowStyle Hidden -Verb RunAs -Wait -ArgumentList "Remove-NetFirewallRule -DisplayName ps2client*; Remove-NetFirewallRule -DisplayName udpbd-server*; New-NetFirewallRule -DisplayName ps2client -Direction Inbound -Action Allow -EdgeTraversalPolicy Block -RemoteAddress $PS2IP -Protocol UDP -Program $InstallFolder\ps2client.exe; New-NetFirewallRule -DisplayName udpbd-server -Direction Inbound -Action Allow -EdgeTraversalPolicy Block -RemoteAddress $PS2IP -Protocol UDP -Program $InstallFolder\udpbd-server.exe"
+    Start-Process powershell.exe -WindowStyle Hidden -Verb RunAs -Wait -ArgumentList "Remove-NetFirewallRule -DisplayName ps2client*; Remove-NetFirewallRule -DisplayName udpbd-server*; New-NetFirewallRule -DisplayName ps2client -Direction Inbound -Action Allow -EdgeTraversalPolicy Block -RemoteAddress $PS2IP,192.168.0.10,192.168.1.10 -Protocol UDP -Program $InstallFolder\ps2client.exe; New-NetFirewallRule -DisplayName udpbd-server -Direction Inbound -Action Allow -EdgeTraversalPolicy Block -RemoteAddress $PS2IP,192.168.0.10,192.168.1.10 -Protocol UDP -Program $InstallFolder\udpbd-server.exe"
     $InstallLog += "`r`n`r`nCreating a firewall rule for ps2client and udpbd-server"
 }
 Find-Error

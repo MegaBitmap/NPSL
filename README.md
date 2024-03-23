@@ -30,7 +30,7 @@ PS2Link is a 'bootloader' which, used together with an Ethernet driver and a TCP
 1. There is a direct connection where a single Ethernet cable connects the ps2 and PC.  
 On the PC, go into network connections or run `ncpa.cpl`.  
 Right click the Ethernet adapter and select properties, then select IPv4 properties.  
-Set the IP address to `192.168.0.47` and subnet mask to `255.255.255.0` everything else can be left blank.  
+Set the IP address to `192.168.0.47` and subnet mask to `255.255.0.0` everything else can be left blank.  
 The ps2link IP address settings in `IPCONFIG.DAT` can be left at default values.  
 The default `IPCONFIG.DAT` will set the ps2 IP address to `192.168.0.10`.  
 
@@ -53,7 +53,7 @@ If it says `Destination host unreachable.`, an unused IP address has successfull
     cmd /k ping 192.168.1.62
     ```
 
-    The second IP address or subnet mask, is set to `255.255.255.0`  
+    The second IP address or subnet mask, is set to `255.255.0.0`  
 The third IP address or default gateway, must match the default gateway of the router or switch.  
 Most likely it will be `192.168.0.1` or `192.168.1.1`  
 Make sure to save changes then replace the `IPCONFIG.DAT` in `mc0:/APPS/`  
