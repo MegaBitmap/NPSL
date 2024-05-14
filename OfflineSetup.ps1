@@ -10,11 +10,13 @@ $InstallLog = $null
 $UninstallLog = $null
 $UninstallFiles = $null
 
-$ScriptRepo      = Get-Location
-$SetupFilesZip   = "$ScriptRepo/SetupFiles.zip"
-$InstallFilesZip = "$ScriptRepo/InstallFiles.zip"
-$License         = "$ScriptRepo/LICENSE.txt"
-$3rdPartyLicense = "$ScriptRepo/LICENSE-3RD-PARTY.txt"
+$ScriptRepo         = Get-Location
+$SetupFilesZip      = "$ScriptRepo/SetupFiles.zip"
+$SetupLastUpdated   = "2024-02-04"
+$InstallFilesZip    = "$ScriptRepo/InstallFiles.zip"
+$InstallLastUpdated = "2024-03-13"
+$License            = "$ScriptRepo/LICENSE.txt"
+$3rdPartyLicense    = "$ScriptRepo/LICENSE-3RD-PARTY.txt"
 
 $SetupDir    = "$env:TEMP\NPSL"
 $BChunk       = "$SetupDir\bchunk.exe"
@@ -478,12 +480,12 @@ if ( $EnableVMC ){
 else {
     $VMCArgument = ""
 }
-if ( -not ( Test-Path "$SetupDir\BlankVMC.bin" -NewerThan "Feb 4, 2024" ) ) {
+if ( -not ( Test-Path "$SetupDir\BlankVMC.bin" -NewerThan $SetupLastUpdated ) ) {
     
     Expand-Archive $SetupFilesZip -DestinationPath $SetupDir -Force
 }
 
-if ( -not ( Test-Path $Neutrino -NewerThan "Mar 13, 2024" ) ) {
+if ( -not ( Test-Path $Neutrino -NewerThan $InstallLastUpdated ) ) {
     
     Expand-Archive $InstallFilesZip -DestinationPath $InstallFolder -Force
     $InstallLog += "`r`n`r`nInstalling Files to $InstallFolder"
