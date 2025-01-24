@@ -12,16 +12,18 @@ $UninstallFiles = $null
 
 $ScriptRepo         = "https://raw.githubusercontent.com/MegaBitmap/NPSL/master"
 $SetupFilesZip      = "$ScriptRepo/SetupFiles.zip"
-$SetupLastUpdated   = "2024-02-04"
+$SetupLastUpdated   = "2025-01-23"
 $InstallFilesZip    = "$ScriptRepo/InstallFiles.zip"
-$InstallLastUpdated = "2024-03-13"
+$InstallLastUpdated = "2025-01-21"
 $License            = "$ScriptRepo/LICENSE.txt"
 $3rdPartyLicense    = "$ScriptRepo/LICENSE-3RD-PARTY.txt"
 
-$SetupDir    = "$env:TEMP\NPSL"
+$SetupDir     = "$env:TEMP\NPSL"
 $BChunk       = "$SetupDir\bchunk.exe"
-$BlankVMC     = "$SetupDir\BlankVMC.bin"
-$Convert      = "$SetupDir\convert.exe"
+$BlankVMC8    = "$SetupDir\BlankVMC8.bin"
+$BlankVMC32   = "$SetupDir\BlankVMC32.bin"
+$ImageMagick  = "$SetupDir\magick.exe"
+$VMCGroupFile = "$SetupDir\vmc_groups.list"
 
 $DefaultPS2IP       = "192.168.0.10"
 $DefaultShortcutDir = "$env:USERPROFILE\Desktop"
@@ -94,12 +96,60 @@ function Search-BadChar {
     param (
         $FileArray
     )
-    foreach ($FileCBC in $FileArray) {
+    foreach ( $FileCBC in $FileArray ) {
         if ( $FileCBC -match "\$|{|}" ) {
             Write-Form "`r`nAn error has occured:`r`n`r`nPlease rename $FileCBC so that it does not contain these characters:`r`n $ or { or }" "Error"
             exit
         }
     }
+}
+function Get-VMCGroup {
+    param (
+        $TempSerialGameID
+    )
+    $GroupLineArray = Get-Content -Path $VMCGroupFile
+    $CombinedLines = $GroupLineArray -join ""
+    if ( $CombinedLines -match $TempSerialGameID ) {
+        $VMCCurrentGroup = ""
+        foreach ( $GroupLine in $GroupLineArray ) {
+            if ( $GroupLine -match "XEBP" ) {
+                $VMCCurrentGroup = $GroupLine
+            }
+            elseif ( $GroupLine -match $TempSerialGameID ) {
+                return $VMCCurrentGroup
+            }
+        }
+    }
+    else { return $TempSerialGameID }
+}
+function Get-VMCGroupSize {
+    param (
+        $TempSerialGameID
+    )
+    $GroupLineArray = Get-Content -Path $VMCGroupFile
+    $CombinedLines = $GroupLineArray -join ""
+    if ( $CombinedLines -match $TempSerialGameID ) {
+        $VMCCurrentSize = "8"
+        $CheckNextLine = $false
+        foreach ( $GroupLine in $GroupLineArray ) {
+            if ( $CheckNextLine ) {
+                if ( $GroupLine.Length -le 5 ) {
+                    $VMCCurrentSize = $GroupLine
+                }
+                else {
+                    $VMCCurrentSize = "8"
+                }
+                $CheckNextLine = $false
+            }
+            if ( $GroupLine -match "XEBP" ) {
+                $CheckNextLine = $true
+            }
+            elseif ( $GroupLine -match $TempSerialGameID ) {
+                return $VMCCurrentSize
+            }
+        }
+    }
+    else { return "8" }
 }
 function Uninstall-Form {
     
@@ -480,14 +530,14 @@ if ( $EnableVMC ){
 else {
     $VMCArgument = ""
 }
-if ( -not ( Test-Path "$SetupDir\BlankVMC.bin" -NewerThan $SetupLastUpdated ) ) {
+if ( -not ( Test-Path $ImageMagick -NewerThan $SetupLastUpdated ) ) {
     
     $TempSetupZip = "$env:TEMP\NPSLSetup.zip"
 
     Invoke-WebRequest -Uri $SetupFilesZip -OutFile $TempSetupZip
 
     Expand-Archive $TempSetupZip -DestinationPath $SetupDir -Force
-
+    $InstallLog += "`r`n`r`nInstalling Setup Files to $SetupDir"
     Remove-Item $TempSetupZip
 }
 
@@ -545,41 +595,47 @@ foreach ( $CUE in $AllCUEs ) {
         }
     }
 }
-$AllISOs = Get-ChildItem -Path $ISODrive -Recurse -Include *.iso
+$AllISOs = Get-ChildItem -Path "$ISODrive\CD" -Recurse -Include *.iso
+$AllISOs += Get-ChildItem -Path "$ISODrive\DVD" -Recurse -Include *.iso
 if ( -not $AllISOs ) {
     Write-Form "`r`nAn error has occured:`r`n`r`nThere are no ISOs found in ' $ISODrive '" "Error"
     exit
 }
 Search-BadChar $AllISOs
 foreach ( $ISO in $AllISOs ) {
-    $DiskImage = Mount-DiskImage -ImagePath $ISO -StorageType ISO -NoDriveLetter -PassThru
+    $DiskImage = Mount-DiskImage -ImagePath $ISO -PassThru
     if ( $Error ) {
         Write-Form "`r`nAn error has occured:`r`n`r`nThe File $ISO is corrupted or unreadable.`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
         exit
     }
-    New-PSDrive -Name ISOFile -PSProvider FileSystem -Root ( Get-Volume -DiskImage $DiskImage ).UniqueId | Out-Null
-    Push-Location ISOFile:
+    $ISODriveLetter = ( $DiskImage | Get-Volume ).DriveLetter
 
-    if ( Test-Path -Path "ISOFile:\SYSTEM.CNF" ) {
-        $ISOInfo = ( Get-Content -Path "ISOFile:\SYSTEM.CNF" ) -replace "cdrom0:\\" -replace "cdrom:\\" -replace ";1" | ConvertFrom-StringData
+    if ( Test-Path -Path "$ISODriveLetter`:\SYSTEM.CNF" ) {
+        $ISOInfo = ( Get-Content -Path "$ISODriveLetter`:\SYSTEM.CNF" ) -replace "cdrom0:\\" -replace "cdrom:\\" -replace ";1" | ConvertFrom-StringData
         $Serial = $ISOInfo.BOOT2
 
-        Pop-Location
-        Remove-PSDrive ISOFile
         Dismount-DiskImage -DevicePath $DiskImage.DevicePath | Out-Null
 
         if ( $Serial ) {
             $BaseName = $ISO.BaseName -replace "$Serial\."
             $TrimmedISOPath = $ISO -replace "$ISODrive\\" -replace "'" , "''"
             if ( $EnableVMC ) {
-                $VMCArgument = " -mc0=mass:VMC\${Serial}_0.bin"
-                $VMCFullName = "$ISODrive\VMC\${Serial}_0.bin"
+                
+                $TempVMCGroup = Get-VMCGroup $Serial
+                $TempVMCSize = Get-VMCGroupSize $Serial
+
+                $VMCArgument = " -mc0=mass:VMC\${TempVMCGroup}_0.bin"
+                $VMCFullName = "$ISODrive\VMC\${TempVMCGroup}_0.bin"
 
                 if ( Test-Path -Path $VMCFullName -PathType Leaf ){
                     $InstallLog += "`r`n`r`n$BaseName VMC Already Exists $VMCFullName"
                 }
                 else {
-                    Copy-Item $BlankVMC -Destination $VMCFullName
+                    $TempVMCFilename = $BlankVMC8
+                    if ( $TempVMCSize -match "32" ) {
+                        $TempVMCFilename = $BlankVMC32
+                    }
+                    Copy-Item $TempVMCFilename -Destination $VMCFullName
                     $InstallLog += "`r`n`r`nCreating $BaseName VMC $VMCFullName"
                 }
             }
@@ -607,7 +663,7 @@ foreach ( $ISO in $AllISOs ) {
                     }
                     if ( Test-Path -Path "$InstallFolder\Icons\$BoxArt.jpg" -PathType Leaf ) {
                         
-                        & $Convert -background transparent "$InstallFolder\Icons\$BoxArt.jpg" -crop 512x666+0+70 -resize 197x256 -gravity center -extent 256x256 -define icon:auto-resize=16,24,32,48,64,256 "$InstallFolder\Icons\$BoxArt.ico"
+                        & $ImageMagick -background transparent "$InstallFolder\Icons\$BoxArt.jpg" -crop 512x666+0+70 -resize 197x256 -gravity center -extent 256x256 -define icon:auto-resize=16,24,32,48,64,256 "$InstallFolder\Icons\$BoxArt.ico"
                         Remove-Item -Path "$InstallFolder\Icons\$BoxArt.jpg"
                     }
                 }
@@ -619,8 +675,6 @@ foreach ( $ISO in $AllISOs ) {
         }
     }
     else {
-        Pop-Location
-        Remove-PSDrive ISOFile
         Dismount-DiskImage -DevicePath $DiskImage.DevicePath | Out-Null
     }
     Find-Error

@@ -28,35 +28,29 @@ PS2Link is a 'bootloader' which, used together with an Ethernet driver and a TCP
 
 - When connecting a ps2 to a PC there are two network configurations.
 1. There is a direct connection where a single Ethernet cable connects the ps2 and PC.  
-On the PC, go into network connections or run `ncpa.cpl`.  
+On the PC set a static IP address, go into network connections or run `ncpa.cpl`.  
 Right click the Ethernet adapter and select properties, then select IPv4 properties.  
-Set the IP address to `192.168.0.47` and subnet mask to `255.255.0.0` everything else can be left blank.  
+Set the IP address to `192.168.0.47` and subnet mask to `255.255.255.0` everything else can be left blank.  
 The ps2link IP address settings in `IPCONFIG.DAT` can be left at default values.  
 The default `IPCONFIG.DAT` will set the ps2 IP address to `192.168.0.10`.  
 
-2. The second configuration is where the ps2 and PC are connected to a router or Ethernet switch.  
+2. The second configuration is where the ps2 and PC are connected to a router with DHCP enabled.  
+On the PC go into network connections or run `ncpa.cpl`.  
+Right click the Ethernet adapter and select properties, then select IPv4 properties.  
+Enable "Obtain an IP address automatically".
 The ps2 IP address settings for ps2link, `IPCONFIG.DAT`, need to be changed with a text editor.  
 For the first IP address, the first three parts must match the default gateway of the router or switch.  
-To find the default gateway, run this command:  
-
-    ```
-    cmd /k ipconfig
-    ```
-
-    Most likely it will be `192.168.0.?` or `192.168.1.?`  
-The last part of the IP address, `?`, must be between `2` and `253`, and can not be the same as any other device on the network.  
-Example: `192.168.1.62` or `192.168.0.27`  
-I recommend to use the `ping` command to check for an unused IP address.  
-If it says `Destination host unreachable.`, an unused IP address has successfully been found.  
-
-    ```
-    cmd /k ping 192.168.1.62
-    ```
-
-    The second IP address or subnet mask, is set to `255.255.0.0`  
+For example: 192.168.1.?  
+The last part (?) needs to be a unique number between 2 and 254, example: `192.168.1.147`  
+Set the middle number, subnet mask, to `255.255.255.0`  
 The third IP address or default gateway, must match the default gateway of the router or switch.  
 Most likely it will be `192.168.0.1` or `192.168.1.1`  
-Make sure to save changes then replace the `IPCONFIG.DAT` in `mc0:/APPS/`  
+The finished settings should be formated like this: (example IP adress)
+```
+192.168.1.147 255.255.255.0 192.168.1.1
+# EXTRACNF = mc0:extra.cnf;
+```
+Make sure to save changes then replace the `IPCONFIG.DAT` in `mc0:/APPS` or `mc0:/PS2LINK`  
 
 ### PS2 Setup:
 
@@ -64,7 +58,7 @@ Make sure to save changes then replace the `IPCONFIG.DAT` in `mc0:/APPS/`
 
 2. Edit `IPCONFIG.DAT` if needed. See network configuration above.
 
-3. Plug the drive into the PS2 and use launchELF to copy the ps2link files from `mass:/` to `mc0:/APPS`
+3. Plug the drive into the PS2 and use launchELF to copy the ps2link files from `mass:/` to `mc0:/APPS` or `mc0:/PS2LINK`
 
 4. Power Off and unplug the flash drive.
 
@@ -81,7 +75,7 @@ Make sure to save before exiting.
 
 1. Open Disk Management and select a drive to store PS2 game ISOs.  
 
-2. Shrink or delete a partition so that there is enough unallocated space to store games.  
+2. Shrink or delete a partition so that there is enough unassigned free space to store games.  
 WARNING Please back up any important files before deleting a partition.  
 
 3. Use Rufus to flash a Gparted live ISO onto a flash drive.  
@@ -97,6 +91,7 @@ It is recommended to label it as PS2.
 7. Apply the changes, then restart back into windows.  
 
 8. Navigate to `This PC` and an empty drive labeled PS2 should show up.  
+If it does not show up try restarting windows.  
 Please note the drive letter for step 13.  
 
 9. In the drive create a folder named `DVD` and copy all game ISOs into it.  
@@ -105,6 +100,8 @@ For games in a CUE+BIN format, create a folder named `CD` and copy the files int
 10. See network configuration above and verify your IP address settings.  
 
 11. Turn on the ps2, run ps2link and wait for it to display `Ready`.  
+Make sure to verify the IP address displayed matches all but the last part.  
+For example the PCs IP address is 192.168.22.152 and the PS2s IP address is 192.168.22.109 
 
 12. Run the Setup script using this command:  
 It will automatically download neutrino, ps2client, and udpbd-server.  
@@ -145,7 +142,7 @@ NPSL uses third party programs for added functionality:
 **Please read LICENSE-3RD-PARTY.txt for licensing information.**
 
 - neutrino:  
-Version: neutrino_v1.3.1  
+Version: neutrino_v1.4.0  
 <https://github.com/rickgaiser/neutrino>  
 
 - udpbd-server:  
@@ -160,7 +157,7 @@ Version: ps2client-211df54b-windows-latest
 <https://github.com/ps2dev/ps2link>  
 
 - ImageMagick:  
-Version: ImageMagick-7.1.1-27-portable-Q16-x64  
+Version: ImageMagick-7.1.1-43-portable-Q16-x64  
 <https://github.com/ImageMagick/ImageMagick>  
 
 - bchunk:  

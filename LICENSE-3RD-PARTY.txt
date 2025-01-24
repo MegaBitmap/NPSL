@@ -1,7 +1,7 @@
 The NPSL Setup application uses third party programs for added functionality:
 
     neutrino:
-        Version: neutrino_v1.3.1
+        Version: neutrino_v1.4.0
         https://github.com/rickgaiser/neutrino
 
         rickgaiser/neutrino is licensed under the
@@ -417,7 +417,7 @@ the express written permission of its copyright owner.
 
 
     ImageMagick:
-        Version: ImageMagick-7.1.1-27-portable-Q16-x64
+        Version: ImageMagick-7.1.1-43-portable-Q16-x64
         https://github.com/ImageMagick/ImageMagick
 
                          ImageMagick License
