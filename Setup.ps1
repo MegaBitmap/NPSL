@@ -14,7 +14,7 @@ $ScriptRepo         = "https://raw.githubusercontent.com/MegaBitmap/NPSL/master"
 $SetupFilesZip      = "$ScriptRepo/SetupFiles.zip"
 $SetupLastUpdated   = "2025-01-23"
 $InstallFilesZip    = "$ScriptRepo/InstallFiles.zip"
-$InstallLastUpdated = "2025-01-21"
+$InstallLastUpdated = "2025-01-26"
 $License            = "$ScriptRepo/LICENSE.txt"
 $3rdPartyLicense    = "$ScriptRepo/LICENSE-3RD-PARTY.txt"
 
