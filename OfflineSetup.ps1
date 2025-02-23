@@ -14,7 +14,7 @@ $ScriptRepo         = Get-Location
 $SetupFilesZip      = "$ScriptRepo/SetupFiles.zip"
 $SetupLastUpdated   = "2025-01-23"
 $InstallFilesZip    = "$ScriptRepo/InstallFiles.zip"
-$InstallLastUpdated = "2025-01-26"
+$InstallLastUpdated = "2025-02-19"
 $License            = "$ScriptRepo/LICENSE.txt"
 $3rdPartyLicense    = "$ScriptRepo/LICENSE-3RD-PARTY.txt"
 
