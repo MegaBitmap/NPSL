@@ -17,7 +17,7 @@ Loading games via Ethernet is faster than using a disk or USB drive.
 
 Neutrino is a command line only application with no GUI.  
 NPSL is a powershell script that functions as a GUI for neutrino.  
-The NPSL `Setup.ps1` script will create a desktop shortcut for every ps2 ISO found in a selected exFAT volume.  
+The NPSL `OfflineSetup.ps1` script will create a desktop shortcut for every ps2 ISO found in a selected exFAT volume.  
 
 It is recommended to configure the ps2 to automatically launch [ps2link](https://github.com/ps2dev/ps2link) as that program is needed for the ps2 to receive data and commands from the PC.  
 PS2Link is a 'bootloader' which, used together with an Ethernet driver and a TCP/IP stack, enables you to download and execute software on the PS2.  
@@ -45,7 +45,7 @@ The last part (?) needs to be a unique number between 2 and 254, example: `192.1
 Set the middle number, subnet mask, to `255.255.255.0`  
 The third IP address or default gateway, must match the default gateway of the router or switch.  
 Most likely it will be `192.168.0.1` or `192.168.1.1`  
-The finished settings should be formated like this: (example IP adress)
+The finished settings should be formatted like this: (example IP address)
 ```
 192.168.1.147 255.255.255.0 192.168.1.1
 # EXTRACNF = mc0:extra.cnf;
@@ -63,7 +63,7 @@ Make sure to save changes then replace the `IPCONFIG.DAT` in `mc0:/APPS` or `mc0
 4. Power Off and unplug the flash drive.
 
 5. If using FMCB open the configurator and in E1 launch keys change Auto to the `PS2LINK.ELF` file.  
-- If using PS2BBL use the launchELF text editor to open `mc0:/PS2BBL/CONFIG.INI`.  
+- If using PS2BBL use the launchELF text editor to open `mc0:/PS2BBL/CONFIG.INI` or `mc0:/SYS-CONF/PS2BBL.INI`.  
 In the line with `LK_AUTO_E1 = mass:/APPS/OPNPS2LD.ELF`,  
 change it to `LK_AUTO_E1 = mc?:/APPS/PS2LINK.ELF`  
 Make sure to save before exiting.  
@@ -101,17 +101,12 @@ For games in a CUE+BIN format, create a folder named `CD` and copy the files int
 
 11. Turn on the ps2, run ps2link and wait for it to display `Ready`.  
 Make sure to verify the IP address displayed matches all but the last part.  
-For example the PCs IP address is 192.168.22.152 and the PS2s IP address is 192.168.22.109 
+For example the PCs IP address is 192.168.22.152 and the PS2s IP address is 192.168.22.109  
 
-12. Run the Setup script using this command:  
-It will automatically download neutrino, ps2client, and udpbd-server.  
-
-    ```
-    powershell "irm https://raw.githubusercontent.com/MegaBitmap/NPSL/master/Setup.ps1 | iex"
-    ```
-
-    For offline installations, download this repository as a ZIP file.  
-Extract the ZIP to a folder and then run `OfflineSetup.ps1` with PowerShell.  
+12. Clone this repository or download it as a ZIP file and extract to a folder.  
+Run the OfflineSetup.ps1 script with powershell:  
+It will install neutrino, ps2client, and udpbd-server.  
+`powershell .\OfflineSetup.ps1` 
 
 13. A dialog box should show up, read and accept the license terms, then configure the settings.  
 The most important setting is the ps2 IP address.  
@@ -129,11 +124,7 @@ It is recommend to power off the PS2 before closing udpbd-server when finished p
 - NPSL creates shortcuts with arguments that can contain more than 231 characters.  
 The shortcut properties built into windows will display at max 231 characters.  
 If you want to manually edit a shortcut without the character limit,  
-use the `EditShortcut.ps1` script in this repository:  
-
-    ```
-    powershell "irm https://raw.githubusercontent.com/MegaBitmap/NPSL/master/EditShortcut.ps1 | iex"
-    ```
+run the `EditShortcut.ps1` script with powershell:  
 
 
 ## Credits:
@@ -142,7 +133,7 @@ NPSL uses third party programs for added functionality:
 **Please read LICENSE-3RD-PARTY.txt for licensing information.**
 
 - neutrino:  
-Version: neutrino_v1.6.0  
+Version: neutrino_v1.6.1  
 <https://github.com/rickgaiser/neutrino>  
 
 - udpbd-server:  
@@ -150,14 +141,14 @@ Version: Mar 8, 2023
 <https://github.com/israpps/udpbd-server>  
 
 - ps2client:  
-Version: ps2client-211df54b-windows-latest  
+Version: ps2client-0a14070c-windows-latest-x86_64  
 <https://github.com/ps2dev/ps2client>  
 
 - ps2link:  
 <https://github.com/ps2dev/ps2link>  
 
 - ImageMagick:  
-Version: ImageMagick-7.1.1-43-portable-Q16-x64  
+Version: ImageMagick-7.1.1-47-portable-Q16-x64  
 <https://github.com/ImageMagick/ImageMagick>  
 
 - bchunk:  
@@ -166,3 +157,4 @@ Version: bchunk-v1.2.3-WIN
 
 - ps2-covers:  
 <https://github.com/xlenore/ps2-covers>  
+

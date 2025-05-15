@@ -12,9 +12,7 @@ $UninstallFiles = $null
 
 $ScriptRepo         = Get-Location
 $SetupFilesZip      = "$ScriptRepo/SetupFiles.zip"
-$SetupLastUpdated   = "2025-01-23"
 $InstallFilesZip    = "$ScriptRepo/InstallFiles.zip"
-$InstallLastUpdated = "2025-02-19"
 $License            = "$ScriptRepo/LICENSE.txt"
 $3rdPartyLicense    = "$ScriptRepo/LICENSE-3RD-PARTY.txt"
 
@@ -42,7 +40,7 @@ $FolderBrowserDialogObject = [System.Windows.Forms.FolderBrowserDialog]
 
 function Find-Error {
     if ( $Error ) {
-        Write-Form "`r`nAn error has occured:`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
+        Write-Form "`r`nAn error has occurred:`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
         exit
     }
 }
@@ -98,7 +96,7 @@ function Search-BadChar {
     )
     foreach ( $FileCBC in $FileArray ) {
         if ( $FileCBC -match "\$|{|}" ) {
-            Write-Form "`r`nAn error has occured:`r`n`r`nPlease rename $FileCBC so that it does not contain these characters:`r`n $ or { or }" "Error"
+            Write-Form "`r`nAn error has occurred:`r`n`r`nPlease rename $FileCBC so that it does not contain these characters:`r`n $ or { or }" "Error"
             exit
         }
     }
@@ -297,7 +295,7 @@ Write-Form ( Get-Content $3rdPartyLicense -Raw ) "Please Read the 3rd Party Soft
 Find-Error
 
 if ( Get-Process -Name "udpbd-server" -ErrorAction Ignore ) {
-    Write-Form "`r`nAn error has occured:`r`n`r`nudpbd-server is currently running, please close or end the task." "Error"
+    Write-Form "`r`nAn error has occurred:`r`n`r`nudpbd-server is currently running, please close or end the task." "Error"
     exit
 }
 
@@ -474,13 +472,13 @@ if ( $WMIVolume ) {
         }
     }
     if ( $NumValidDrive -eq "0" ) {
-        Write-Form "`r`nAn error has occured:`r`n`r`nThe exFAT drive does not have a drive letter assigned to it." "Error"
+        Write-Form "`r`nAn error has occurred:`r`n`r`nThe exFAT drive does not have a drive letter assigned to it." "Error"
         exit
     }
     $ComboBoxDrive.SelectedIndex = "0"
 }
 else {
-    Write-Form "`r`nAn error has occured:`r`n`r`nThe scirpt was unable to find an exFAT volume or partition." "Error"
+    Write-Form "`r`nAn error has occurred:`r`n`r`nThe script was unable to find an exFAT volume or partition." "Error"
     exit
 }
 $MainFormResult = $MainForm.ShowDialog()
@@ -497,7 +495,6 @@ $ShortcutPath    = $LabelShortcutPath.Text
 
 $InstallPath     = $LabelInstallPath.Text
 $InstallFolder   = "$InstallPath\NPSL"
-$Neutrino        = "$InstallFolder\neutrino.elf"
 
 $AddFirewallRule = $CheckBoxAddFirewall.Checked
 $ConvertCue      = $CheckBoxConvertCue.Checked
@@ -511,13 +508,13 @@ if ( $TestPS2IP ) {
     
     if ( -not ( Test-Connection -ComputerName $PS2IP -Count "1" -Quiet ) ) {
         
-        Write-Form "`r`nAn error has occured:`r`n`r`nTesting connection to PS2 with ip address $PS2IP failed." "Error"
+        Write-Form "`r`nAn error has occurred:`r`n`r`nTesting connection to PS2 with ip address $PS2IP failed." "Error"
         exit
     }
 }
 if ( ( ( Split-Path -Path $ShortcutPath -Qualifier ) -eq $ISODrive ) -or ( ( Split-Path -Path $InstallPath -Qualifier ) -eq $ISODrive ) ) {
 
-    Write-Form "`r`nAn error has occured:`r`n`r`nThe installer is unable to install to the same partition as the exFAT volume with PS2 ISOs.`r`n" "Error"
+    Write-Form "`r`nAn error has occurred:`r`n`r`nThe installer is unable to install to the same partition as the exFAT volume with PS2 ISOs.`r`n" "Error"
     exit
 }
 Find-Error
@@ -530,17 +527,12 @@ if ( $EnableVMC ){
 else {
     $VMCArgument = ""
 }
-if ( -not ( Test-Path $ImageMagick -NewerThan $SetupLastUpdated ) ) {
-    
-    Expand-Archive $SetupFilesZip -DestinationPath $SetupDir -Force
-    $InstallLog += "`r`n`r`nInstalling Setup Files to $SetupDir"
-}
+Expand-Archive $SetupFilesZip -DestinationPath $SetupDir -Force
+$InstallLog += "`r`n`r`nInstalling Setup Files to $SetupDir"
 
-if ( -not ( Test-Path $Neutrino -NewerThan $InstallLastUpdated ) ) {
-    
-    Expand-Archive $InstallFilesZip -DestinationPath $InstallFolder -Force
-    $InstallLog += "`r`n`r`nInstalling Files to $InstallFolder"
-}
+Expand-Archive $InstallFilesZip -DestinationPath $InstallFolder -Force
+$InstallLog += "`r`n`r`nInstalling Files to $InstallFolder"
+
 $CfgUDPBD    = "$InstallFolder\config\bsd-udpbd.toml"
 ( Get-Content $CfgUDPBD ) -replace ( ( Get-Content -Path $CfgUDPBD | Select-String "args" ) -replace 'args = \["ip=|"\]' ) , $PS2IP | Set-Content $CfgUDPBD
 
@@ -578,7 +570,7 @@ foreach ( $CUE in $AllCUEs ) {
 
             Set-Location $ScriptDir
             if ( $Error ) {
-                Write-Form "`r`nAn error has occured trying to convert $( $CUE.Name )+BIN to ISO:`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
+                Write-Form "`r`nAn error has occurred trying to convert $( $CUE.Name )+BIN to ISO:`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
                 exit
             }
         }
@@ -587,20 +579,20 @@ foreach ( $CUE in $AllCUEs ) {
 $AllISOs = Get-ChildItem -Path "$ISODrive\CD" -Recurse -Include *.iso
 $AllISOs += Get-ChildItem -Path "$ISODrive\DVD" -Recurse -Include *.iso
 if ( -not $AllISOs ) {
-    Write-Form "`r`nAn error has occured:`r`n`r`nThere are no ISOs found in ' $ISODrive '" "Error"
+    Write-Form "`r`nAn error has occurred:`r`n`r`nThere are no ISOs found in ' $ISODrive '" "Error"
     exit
 }
 Search-BadChar $AllISOs
 foreach ( $ISO in $AllISOs ) {
     $DiskImage = Mount-DiskImage -ImagePath $ISO -PassThru
     if ( $Error ) {
-        Write-Form "`r`nAn error has occured:`r`n`r`nThe File $ISO is corrupted or unreadable.`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
+        Write-Form "`r`nAn error has occurred:`r`n`r`nThe File $ISO is corrupted or unreadable.`r`n`r`n$( $Error -join "`r`n`r`n" )" "Error"
         exit
     }
     $ISODriveLetter = ( $DiskImage | Get-Volume ).DriveLetter
 
     if ( Test-Path -Path "$ISODriveLetter`:\SYSTEM.CNF" ) {
-        $ISOInfo = ( Get-Content -Path "$ISODriveLetter`:\SYSTEM.CNF" ) -replace "cdrom0:\\" -replace "cdrom:\\" -replace ";1" | ConvertFrom-StringData
+        $ISOInfo = ( Get-Content -Path "$ISODriveLetter`:\SYSTEM.CNF" ) -replace "cdrom0:\\" -replace "cdrom:\\" -replace ";1" -replace ";" | ConvertFrom-StringData
         $Serial = $ISOInfo.BOOT2
 
         Dismount-DiskImage -DevicePath $DiskImage.DevicePath | Out-Null
@@ -669,3 +661,4 @@ foreach ( $ISO in $AllISOs ) {
     Find-Error
 }
 Write-Form "`r`nThe installation has successfully completed without any errors.$InstallLog" "Finished"
+
